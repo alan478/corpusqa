@@ -1,0 +1,13 @@
+{
+  "tkt_heading": "Badge reader rejects new starters",
+  "tkt_story": "New starters from the Lindqvist cohort cannot open the side door.",
+  "tkt_tags": "access",
+  "tkt_phase": "\"Open\"",
+  "tkt_opened_on": "2024-02-10T08:30:00Z",
+  "tkt_touched_on": "2024-02-11 09:00",
+  "title_field_name": "tkt_heading",
+  "content_field_names": [
+    "tkt_story"
+  ],
+  "dataset_doc_uuid": "fx-tkt-102"
+}

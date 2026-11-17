@@ -1,0 +1,190 @@
+{
+  "version": "6",
+  "tools": [
+    {
+      "name": "search",
+      "description": [
+        "Find documents whose text is about something: keyword and meaning search over the text of every document (and the common field values shown with it).",
+        "When to call it: the answer is written in a document's text (a message, a description, a transcript), or you know words but not which field holds them. To narrow it, give a source, a created range, or within= a result set from filter or lookup_key: only those documents are ranked, so nothing in the set is missed for being outside a global top list.",
+        "Example: search(query=\"why the release was delayed\", source=\"<source>\", created_from=\"2024-03\", created_to=\"2024-04\")",
+        "How the words match (case does not matter): text in double quotes is one exact phrase (its words together, in that order), and so is a key or code written with - _ / . or # (XY-123 matches 'XY-123' or 'XY 123', never XY-1234 or a lone 123); every other word matches on its own. Any part may match, and documents with more of the parts rank first (OR and AND are not needed: they are not searched for). Example: search(query=\"\\\"an exact phrase\\\" XY-123 other words\"). Meaning search runs beside it on the whole query.",
+        "What comes back: 8 documents, best first (D# handle, source, created date, title), each with its best passages, and a paging line: 'documents 1-8; next: offset=8' while more follow and are not counted yet, 'documents 9-16 of 20; next: offset=16' once every document in scope is ranked, '(last page)' at the end. Call again with that offset for the next 8: each later page searches deeper, so paging goes on until nothing in scope is left. A document marked 'meaning only' contains none of the words, phrases or keys (meaning search found it). If no document in scope contains them, the line after the first says so: then no document's text holds that phrase or key (a key may still be in a field: lookup_key finds it). read_document reads a whole document. For every document with a field value, and for exact counts, use filter instead."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string", "description": "What to look for: plain words, an exact phrase in double quotes, keys as written (names, keys and phrases help)."},
+          "source": {"type": "string", "description": "Search only this source (a name from the source list)."},
+          "created_from": {"type": "string", "description": "Only documents created on or after this date: YYYY-MM-DD, YYYY-MM or YYYY."},
+          "created_to": {"type": "string", "description": "Only documents created on or before this date (inclusive): YYYY-MM-DD, YYYY-MM or YYYY."},
+          "within": {"type": "string", "description": "Search only the documents of this result-set handle (R#), from filter or lookup_key."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the page starts, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "filter",
+      "description": [
+        "Find every document of one source whose fields meet all the conditions, with the exact count.",
+        "When to call it: 'which', 'how many', 'list all', or any question that names a field value (a status, a person, a priority, a date, an amount, a team, a company). Field values that are not in a document's text can only be found this way. The source list and list_fields show each source's fields.",
+        "Ops: eq (value), in (values), contains (value: part of the text), range (from and/or to, inclusive: numbers, or dates YYYY-MM-DD / YYYY-MM / YYYY), present, missing (no value: empty or absent). Values match loosely (case, spaces and punctuation do not matter); persons match however they are written; each item of a list field is matched on its own. eq on a date field means that day (or month, or year). created_from / created_to match the document's own created date. A date outside the corpus's date window counts as no date: no date range matches it, and the result says how many documents that leaves out.",
+        "Example: filter(source=\"<source>\", conditions=[{\"field\": \"<field>\", \"op\": \"eq\", \"value\": \"open\"}, {\"field\": \"<date field>\", \"op\": \"range\", \"from\": \"2024-01\", \"to\": \"2024-03\"}])",
+        "What comes back: the exact number of matches, an R# handle holding every match (newest first: cite it to cite them all, give it to read_fields or search within=), what each value matched, how many documents of the source have each field with a value, empty, or not at all, and 50 rows at a time ('rows 1-50 of 278; next: offset=50'). Call again with that offset for the next rows, or add a condition. If a value matches nothing, or several spellings, an error lists the real values: pick from them."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {"type": "string", "description": "The source to filter (a name from the source list)."},
+          "conditions": {
+            "type": "array",
+            "description": "Conditions, all of which must hold (AND). Empty: every document of the source (with the created range, if given).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {"type": "string", "description": "A field of the source, exactly as list_fields or the source list shows it (the title field too)."},
+                "op": {"type": "string", "enum": ["eq", "in", "range", "present", "missing", "contains"]},
+                "value": {"type": "string", "description": "For eq and contains: one value."},
+                "values": {"type": "array", "items": {"type": "string"}, "description": "For in: the values, any of which may match."},
+                "from": {"type": "string", "description": "For range: the lowest value, inclusive (a number or a date)."},
+                "to": {"type": "string", "description": "For range: the highest value, inclusive (a number or a date)."}
+              },
+              "required": ["field", "op"],
+              "additionalProperties": false
+            }
+          },
+          "created_from": {"type": "string", "description": "Only documents created on or after this date: YYYY-MM-DD, YYYY-MM or YYYY."},
+          "created_to": {"type": "string", "description": "Only documents created on or before this date (inclusive): YYYY-MM-DD, YYYY-MM or YYYY."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the rows start, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["source"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_fields",
+      "description": [
+        "Read chosen field values of many documents at once, straight from the index.",
+        "When to call it: after filter or lookup_key, to say which ones and a detail of each (who owns each, when each was closed); or to compare a field across documents you were shown.",
+        "Example: read_fields(documents=[\"R1\"], fields=[\"<field>\", \"<other field>\"])",
+        "What comes back: one row per document (D#, source, created date, title, then each field's value; '(empty)', '(absent)', '(in the document text)' or '(not a field of source ...)' when it has none), 50 rows at a time with a paging line; call again with the offset for the next rows."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "documents": {"type": "array", "items": {"type": "string"}, "description": "Handles: R# for a whole result set, D# for one document."},
+          "fields": {"type": "array", "items": {"type": "string"}, "description": "Field names, as list_fields or the source list shows them."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the rows start, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["documents", "fields"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_document",
+      "description": [
+        "Read one whole document: its facts, every field and its full text.",
+        "When to call it: a passage, row or title looks relevant and you need the exact wording, the context, or a detail the passage does not show.",
+        "Example: read_document(document=\"D3\")",
+        "What comes back: the document's handle, source, created and updated dates, title, every field with its values, and the whole text, nothing left out."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document": {"type": "string", "description": "A D# handle from an earlier result."}
+        },
+        "required": ["document"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lookup_key",
+      "description": [
+        "Find a record by its own identifier (a ticket key, a record number, an id), and every document that refers to it.",
+        "When to call it: the question or a result names an identifier and you need its record, or what links to it.",
+        "Example: lookup_key(key=\"<KEY-123>\")",
+        "What comes back: the documents that own the key, then the documents that refer to it in a field (with the field and value), as an R# handle and rows with a paging line. Mentions of the key inside free text are found by search."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "key": {"type": "string", "description": "The identifier, as written anywhere (case and spacing do not matter)."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the rows start, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["key"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_fields",
+      "description": [
+        "List every field of a source: its kind, how many documents have it, and its top values.",
+        "When to call it: the source list does not show the field you need (it shows only the common ones), or you are unsure of a field's exact name. Give near= words to bring matching names first.",
+        "Example: list_fields(source=\"<source>\", near=\"due date\")",
+        "What comes back: the source's size and dates, how many fields are near your words, then 50 fields at a time ('fields 1-50 of 607; next: offset=50')."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {"type": "string", "description": "The source (a name from the source list)."},
+          "near": {"type": "string", "description": "Words of the field name you look for; the nearest names come first."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the page starts, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["source"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "field_values",
+      "description": [
+        "List the real values of one field of a source, with how many documents hold each.",
+        "When to call it: before filtering on a value you are not sure how the records write (a team, a stage, a band), or to see what values exist. Give near= words to bring the closest values first.",
+        "Example: field_values(source=\"<source>\", field=\"<field>\", near=\"sre team\")",
+        "What comes back: the number of distinct values, how many documents have the field with a value, empty, or not at all, then 50 values at a time with their document counts and other spellings, and a paging line."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {"type": "string", "description": "The source (a name from the source list)."},
+          "field": {"type": "string", "description": "The field, as list_fields or the source list shows it."},
+          "near": {"type": "string", "description": "Words of the value you look for; the nearest values come first."},
+          "offset": {"type": "integer", "minimum": 0, "description": "Where the page starts, from the paging line of an earlier call. Default 0."}
+        },
+        "required": ["source", "field"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "finish",
+      "description": [
+        "End the run with your final answer to the question.",
+        "When to call it: once, as your last action, when every part of the question is answered, or when you have looked and the documents do not hold what is still missing.",
+        "Call it on its own: other tool calls in the same reply are not run.",
+        "Example: finish(answer=\"The launch moved to 12 March because the supplier was late.\", citations=[\"D3\", \"R1\"], not_found=[])",
+        "What comes back: 'Answer received.' and the run ends. If an argument is not valid, an error comes back instead; fix it and call finish again."
+      ],
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string",
+            "description": "The full answer, in plain sentences, built only from facts that tool results showed. Answer every part of the question. If a part could not be found, say so plainly here too (for example: 'The documents do not say who approved it.'). Never empty."
+          },
+          "citations": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "The documents the answer relies on: D# handles, and R# handles for whole result sets (an R# cites every document in it, so cite it when the answer covers the whole set), each exactly as a tool result showed it. Include a document only if it states something the question asks for and the answer uses it; leave out background documents and documents you read while looking. Never invent a handle. Empty when the documents do not contain what the question asks for, even if the answer describes related documents."
+          },
+          "not_found": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Each part of the question the documents do not answer, in a few words (for example: 'who approved the change'). Empty when every part is answered."
+          }
+        },
+        "required": ["answer", "citations", "not_found"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

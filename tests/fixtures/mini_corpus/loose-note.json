@@ -1,0 +1,9 @@
+{
+  "jot_heading": "Loose note about the greenhouse rota",
+  "jot_words": "Remember to swap the greenhouse watering rota with Tamsin Okonkwo before the frost week.",
+  "title_field_name": "jot_heading",
+  "content_field_names": [
+    "jot_words"
+  ],
+  "dataset_doc_uuid": "fx-root-01"
+}

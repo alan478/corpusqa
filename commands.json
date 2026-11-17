@@ -1,0 +1,160 @@
+{
+  "about": "Every project command, by key. Run one with `uv run <key> [extra args]`; extra args go to the last command. `uv run commands` lists them. Agents use these keys instead of raw commands. Each key is also listed under [project.scripts] in pyproject.toml (tests/unit/test_commands.py keeps the two in sync).",
+  "commands": {
+    "commands": {
+      "description": "List every command with its description.",
+      "builtin": "list"
+    },
+    "setup": {
+      "description": "First-time setup: install all deps (incl. dev tools) and turn on the git hooks in .githooks/ (skipped, with a note, when the folder is not a git repository).",
+      "run": [
+        "uv sync",
+        "if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then git config core.hooksPath .githooks; else echo 'setup: not a git repository, so the git hooks in .githooks/ are not turned on'; fi"
+      ]
+    },
+    "check": {
+      "description": "Every check, in order. Run before saying a task is done.",
+      "steps": [
+        "fmt-check",
+        "lint",
+        "types",
+        "imports",
+        "tests",
+        "secrets"
+      ]
+    },
+    "precommit": {
+      "description": "Fast checks the git pre-commit hook runs on every commit.",
+      "steps": [
+        "fmt-check",
+        "lint",
+        "imports",
+        "tests-unit",
+        "secrets-staged"
+      ]
+    },
+    "fmt": {
+      "description": "Format all Python files and apply safe lint fixes.",
+      "run": [
+        "ruff format .",
+        "ruff check --fix ."
+      ]
+    },
+    "fmt-check": {
+      "description": "Fail if any Python file is not formatted.",
+      "run": [
+        "ruff format --check ."
+      ]
+    },
+    "lint": {
+      "description": "Lint with ruff (incl. no print() in src/, pathlib, async and security rules).",
+      "run": [
+        "ruff check ."
+      ]
+    },
+    "types": {
+      "description": "Type-check src/ with pyright (standard mode).",
+      "run": [
+        "pyright"
+      ]
+    },
+    "imports": {
+      "description": "Check the code-map boundaries (layers, SQL only in store, Gemini SDK only in llm).",
+      "run": [
+        "lint-imports"
+      ]
+    },
+    "tests": {
+      "description": "All offline tests (unit + contract). Live API tests are skipped.",
+      "run": [
+        "pytest -q"
+      ]
+    },
+    "tests-unit": {
+      "description": "Unit tests only (fast; no network).",
+      "run": [
+        "pytest -q tests/unit"
+      ]
+    },
+    "tests-live": {
+      "description": "Tests that call the real Gemini API (needs GEMINI_API_KEY; costs money). Loads .env if present, like serve-dev.",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec pytest -q -m live"
+      ]
+    },
+    "secrets": {
+      "description": "Scan every tracked and new file for things that look like secrets.",
+      "run": [
+        "python scripts/scan_secrets.py --all"
+      ]
+    },
+    "secrets-staged": {
+      "description": "Scan only staged files for secrets (used by precommit).",
+      "run": [
+        "python scripts/scan_secrets.py --staged"
+      ]
+    },
+    "serve-dev": {
+      "description": "Run the service on the dev corpus (CORPUS_DIR=data/corpus, PORT=8080 unless already set). Loads .env if present (Langfuse keys, Gemini key); ./serve itself never reads it.",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec ./serve"
+      ],
+      "env": {
+        "CORPUS_DIR": "data/corpus",
+        "PORT": "8080"
+      }
+    },
+    "questions-tune": {
+      "description": "Show tune-set questions with gold answers (the only way agents read dev questions): uv run questions-tune [--id pub_XXXX] [--set smoke] [--brief].",
+      "run": [
+        "python scripts/show_questions.py"
+      ]
+    },
+    "eval-retrieval": {
+      "description": "Retrieval-only eval of one chunking variant on the tune set (doc recall@5/10/20 both pooled over all gold documents and per question (q_recall, the headline: hybrid q_recall@10), all-gold@10, MRR for bm25/dense/hybrid; no answer LLM): uv run eval-retrieval --chunking recursive|fixed|whole [--max-tokens N] [--overlap N] [--no-header] [--fields] [--no-promote] [--bm25-only] [--screen] [--probe N], or uv run eval-retrieval --production (the index start-up builds in .cache/index). --fields puts field values the profile picks into every chunk header (variant name -fields; embeds every chunk again; not with --no-header or --production, whose index follows CHUNK_HEADER_FIELDS). Fusion flags [--bm25-weight W] [--dense-weight W] [--rrf-k K] change only the query step: the cached index is reused and the run name gets a suffix (-w<bm25>x<dense>, -k<k>). Report in eval/results/tune/retrieval/, one row in eval/history.csv. Loads .env if present (Gemini key; costs money, capped by the spend ledger).",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.retrieval --set tune"
+      ],
+      "env": {
+        "CORPUS_DIR": "data/corpus",
+        "PORT": "8080"
+      }
+    },
+    "eval-smoke": {
+      "description": "Smoke eval (10 questions, inside the tune set) against the running server (start it with `uv run serve-dev`): one POST /ask per question; the returned document_ids are scored as sets against the expected ids (precision, recall, F1, hit, all_gold, exact; unanswerable = no ids returned); then the answer judge (eval/judge.py) judges each answer text fact by fact (aggregates in the summary and history row, per question in judge.jsonl; --no-judge to skip it, it costs money). Report in eval/results/smoke/ask/<time>/ (summary.md, summary.json, per_question.jsonl, judge.jsonl), one row in eval/history.csv. Options: --concurrency N (1-4, default 2), --timeout S (default 180), --milestone <name>, --no-judge. Loads .env if present (Langfuse keys for the eval_ask trace, the Gemini key for the judge).",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.run --set smoke --system full --url http://localhost:8080"
+      ]
+    },
+    "eval-tune": {
+      "description": "Tune-set eval (30 questions; smoke is inside it) against the running server; same scores, options and report as eval-smoke, in eval/results/tune/ask/<time>/. Loads .env if present.",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.run --set tune --system full --url http://localhost:8080"
+      ]
+    },
+    "eval-heldout": {
+      "description": "Held-out test set (49 questions) against the running server. Only at a milestone the user names: --milestone <name> is required. Never tune on it. Everything goes to eval/results/heldout/ask/<time>/ (agents never read it); the printed lines and the history row hold aggregates only. The answer judge runs too (--no-judge to skip it) and reports aggregates only: nothing per question is written or traced. Loads .env if present.",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.run --set heldout --system full --url http://localhost:8080"
+      ]
+    },
+    "eval-all": {
+      "description": "Whole golden set (all 79 dev questions: tune + held-out) against the running server: the final test shown to graders, never used for tuning. Only at a milestone the user names: --milestone <name> is required. Readable summary (aggregates only) in eval/results/all/ask/<time>/; per-question results in eval/results/heldout/ask/<time>/ (agents never read them). The answer judge reports aggregates only (--no-judge to skip it). Loads .env if present.",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.run --set all --system full --url http://localhost:8080"
+      ]
+    },
+    "eval-judge-calibrate": {
+      "description": "Calibrate the answer judge (eval/judge.py, JUDGE_MODEL in config.py) against the hand checks of the 5 hand-checked tune runs: re-judges each run's per_question.jsonl answers and compares with its answer_check.json (fact status and verdict agreement, confusion matrices, Cohen's kappa, every disagreement, the judge's own consistency, cost; bar: JUDGE_CALIBRATION_BAR fact agreement). Tune data only; never calls /ask. Report in eval/results/judge-calibration/<time>/ (report.md, report.json). Options: --runs <folder> ..., --concurrency N, --no-cache, --label TEXT. Judgments are cached by prompt version in .cache/judge/. Loads .env if present (Gemini key; costs money, capped by .cache/spend/judge.json).",
+      "run": [
+        "set -a; [ -f .env ] && . ./.env; set +a; exec python -m eval.judge_calibrate"
+      ]
+    },
+    "eval-baseline": {
+      "description": "One-shot RAG baseline on the same set (pass --set <name>). Not built yet: the runner exits with a message.",
+      "run": [
+        "python -m eval.run --system baseline --url http://localhost:8080"
+      ]
+    }
+  }
+}

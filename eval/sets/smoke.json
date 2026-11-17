@@ -1,0 +1,25 @@
+{
+  "name": "smoke",
+  "created": "2026-10-14",
+  "seed": 20261014,
+  "source": "data/questions.jsonl",
+  "note": "Fast loop. Subset of tune.",
+  "counts": {
+    "total": 10,
+    "multi": 6,
+    "single": 3,
+    "unanswerable": 1
+  },
+  "question_ids": [
+    "pub_0002",
+    "pub_0010",
+    "pub_0023",
+    "pub_0028",
+    "pub_0040",
+    "pub_0041",
+    "pub_0046",
+    "pub_0052",
+    "pub_0059",
+    "pub_0075"
+  ]
+}

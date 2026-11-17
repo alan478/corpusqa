@@ -1,0 +1,9 @@
+{
+  "call_name": "standup.json",
+  "call_recap": "Daily standup; Odile is out today.",
+  "title_field_name": "call_name",
+  "content_field_names": [
+    "call_recap"
+  ],
+  "dataset_doc_uuid": "fx-call-03"
+}

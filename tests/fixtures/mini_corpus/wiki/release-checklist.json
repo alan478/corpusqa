@@ -1,0 +1,10 @@
+{
+  "pg_name": "Release checklist",
+  "pg_text": "Release checklist\r\n\r\n1. Freeze the branch.   \r\n2. Run the smoke suite.\r\n\r\n\r\n\r\n\r\n3. Print a banner with print(\"done\\n\") in the script.\r\n4. Tell the team.",
+  "pg_revised": "2024-05-20",
+  "title_field_name": "pg_name",
+  "content_field_names": [
+    "pg_text"
+  ],
+  "dataset_doc_uuid": "fx-wiki-02"
+}

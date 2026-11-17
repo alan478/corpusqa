@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+.internal/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+docs/runs/
+.cache/
+.env
+.env.*
+!.env.example

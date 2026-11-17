@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Runs on every commit from Claude Code, Codex or a human.
+# Turned on by `uv run setup` (git config core.hooksPath .githooks).
+# The checks themselves are the `precommit` entry in commands.json.
+set -euo pipefail
+exec uv run --quiet precommit

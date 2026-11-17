@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Start command required by CONTRACT.md §1: no args, foreground, stdin unused.
+# Reads CORPUS_DIR, PORT and GEMINI_API_KEY from the environment (see src/corpusqa/config.py).
+# `exec` replaces this shell, so the server stays in our process group and gets the
+# grader's SIGTERM. Never daemonize or setsid here.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Install runtime deps from uv.lock. --inexact keeps dev tools in a dev checkout
+# (an exact --no-dev sync would uninstall pytest and ruff from the shared .venv).
+uv sync --frozen --no-dev --inexact
+exec uv run --frozen --no-dev python -m corpusqa.server

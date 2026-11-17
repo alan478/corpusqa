@@ -1,0 +1,15 @@
+{
+  "mail_topic": "Quarterly stock count",
+  "ltr_1_text": "Hi all, the stock count starts on Friday. Please book your slot.\nThanks, Wren",
+  "ltr_1_author": "Wren Abernathy <wren@example.org>",
+  "ltr_1_stamp": "Tue, 05 Mar 2024 09:15:00 +0000",
+  "ltr_2_text": "Booked the morning slot for the Calloway warehouse.",
+  "ltr_2_author": "Piet Calloway <piet@example.org>",
+  "ltr_2_stamp": "Wed, 06 Mar 2024 11:40:00 +0000",
+  "mail_folder": "inbox",
+  "title_field_name": "mail_topic",
+  "content_field_names": [
+    "ltr_1_text"
+  ],
+  "dataset_doc_uuid": "fx-mail-01"
+}

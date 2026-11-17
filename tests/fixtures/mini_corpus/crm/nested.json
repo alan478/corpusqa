@@ -1,0 +1,18 @@
+{
+  "acct_label": "Quorra Freight account",
+  "acct_summary": "Quorra Freight wants weekly pallet pickups.",
+  "acct_address": {
+    "street": "12 Kiln Lane",
+    "town": "Ashgrove"
+  },
+  "acct_contacts": [
+    "Nadia Fenwick",
+    {
+      "name": "Otto Brack",
+      "ext": 214
+    }
+  ],
+  "title_field_name": "acct_label",
+  "content_field_names": "acct_summary",
+  "dataset_doc_uuid": "fx-crm-nested"
+}

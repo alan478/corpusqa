@@ -1,0 +1,9 @@
+{
+  "call_name": "Q3",
+  "call_recap": "Quarter review: the Ferncastle order doubled.",
+  "title_field_name": "call_name",
+  "content_field_names": [
+    "call_recap"
+  ],
+  "dataset_doc_uuid": "fx-call-04"
+}

@@ -1,0 +1,10 @@
+{
+  "mail_topic": "Empty shell",
+  "msg_text": "   ",
+  "title_field_name": "mail_topic",
+  "content_field_names": [
+    "msg_text",
+    "msg_gone"
+  ],
+  "dataset_doc_uuid": "fx-mail-03"
+}

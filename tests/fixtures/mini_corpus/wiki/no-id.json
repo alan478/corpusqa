@@ -1,0 +1,8 @@
+{
+  "pg_name": "Orphan page",
+  "pg_text": "No id here.",
+  "title_field_name": "pg_name",
+  "content_field_names": [
+    "pg_text"
+  ]
+}

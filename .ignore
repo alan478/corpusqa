@@ -1,0 +1,5 @@
+# ripgrep (and Claude Code's Grep tool) skip these in recursive searches.
+# Held-out eval material stays out of search results (AGENTS.md: Eval split).
+data/questions.jsonl
+eval/sets/heldout.json
+eval/results/heldout/

@@ -1,0 +1,10 @@
+{
+  "tkt_number": 4471,
+  "tkt_story": "Replace the broken kettle in the second floor kitchen.",
+  "title_field_name": "tkt_number",
+  "content_field_names": [
+    "tkt_story",
+    "tkt_missing_part"
+  ],
+  "dataset_doc_uuid": "fx-tkt-104"
+}

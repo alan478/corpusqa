@@ -1,0 +1,9 @@
+{
+  "pg_name": "Blank id",
+  "pg_text": "x",
+  "title_field_name": "pg_name",
+  "content_field_names": [
+    "pg_text"
+  ],
+  "dataset_doc_uuid": "   "
+}

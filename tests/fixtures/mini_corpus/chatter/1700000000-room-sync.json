@@ -1,0 +1,19 @@
+{
+  "room_name": "sync",
+  "said": "Fenna: morning all, the boiler engineer arrives at ten.",
+  "said_2": "Rasmus: thanks, I will meet him at the loading bay.",
+  "said_3": "Fenna: great, I will tell reception.",
+  "room_members": [
+    "Fenna",
+    "Rasmus"
+  ],
+  "began_ts": "1700000000",
+  "ended_ts": "1700003600",
+  ",": "Fenna: also, a reminder that the quarterly fire drill is on Thursday at two in the afternoon, so please make sure every visitor signs the paper register at reception before they go up to the studio floors.",
+  "": "x",
+  "title_field_name": "room_name",
+  "content_field_names": [
+    "said"
+  ],
+  "dataset_doc_uuid": "fx-chat-01"
+}

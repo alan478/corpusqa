@@ -1,0 +1,36 @@
+{
+  "call_name": "Kickoff with Larkspur Mills",
+  "call_recap": "We agreed the pilot scope with Larkspur Mills: two looms, one shift, four weeks.",
+  "call_actions": [
+    "Send the pilot contract",
+    "Book the site visit"
+  ],
+  "call_followup_plan": "After the pilot, Solveig Brandt will run a two week review with the shift leads, compare loom downtime against the baseline, and write a short recommendation for the board meeting in the spring.",
+  "call_links": [
+    "https://example.org/pilot/page-0",
+    "https://example.org/pilot/page-1",
+    "https://example.org/pilot/page-2",
+    "https://example.org/pilot/page-3",
+    "https://example.org/pilot/page-4",
+    "https://example.org/pilot/page-5",
+    "https://example.org/pilot/page-6",
+    "https://example.org/pilot/page-7",
+    "https://example.org/pilot/page-8",
+    "https://example.org/pilot/page-9",
+    "https://example.org/pilot/page-10",
+    "https://example.org/pilot/page-11",
+    "https://example.org/pilot/page-12",
+    "https://example.org/pilot/page-13",
+    "https://example.org/pilot/page-14",
+    "https://example.org/pilot/page-15"
+  ],
+  "nоtes": "short",
+  "call_held_on": "March 7, 2024",
+  "title_field_name": "call_name",
+  "content_field_names": [
+    "call_name",
+    "call_recap",
+    "call_actions"
+  ],
+  "dataset_doc_uuid": "fx-call-01"
+}

@@ -1,0 +1,12 @@
+{
+  "room_name": "ops-room",
+  "said": "Kalle: the night shift handover note is in the blue folder on the shelf by the door, next to the first aid kit and the spare torch batteries for the winter.",
+  "said_copy": "Kalle: the night shift handover note is in the blue folder on the shelf by the door, next to the first aid kit and the spare torch batteries for the winter.",
+  "began_ts": "1700000360000",
+  "ended_ts": "9999999999",
+  "title_field_name": "room_name",
+  "content_field_names": [
+    "said"
+  ],
+  "dataset_doc_uuid": "fx-chat-02"
+}

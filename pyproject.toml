@@ -1,0 +1,144 @@
+[project]
+name = "corpusqa"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.143.1",
+    "google-genai>=2.31.0",
+    "httpx>=0.28.1",
+    "langfuse>=5.0.1",
+    "numpy>=2.5.4",
+    "uvicorn>=0.54.0",
+]
+
+# One console script per key in commands.json, so `uv run <key>` works.
+# tests/unit/test_commands.py fails if this list and commands.json differ.
+[project.scripts]
+commands = "corpusqa.devtasks:main"
+setup = "corpusqa.devtasks:main"
+check = "corpusqa.devtasks:main"
+precommit = "corpusqa.devtasks:main"
+fmt = "corpusqa.devtasks:main"
+fmt-check = "corpusqa.devtasks:main"
+lint = "corpusqa.devtasks:main"
+types = "corpusqa.devtasks:main"
+imports = "corpusqa.devtasks:main"
+tests = "corpusqa.devtasks:main"
+tests-unit = "corpusqa.devtasks:main"
+tests-live = "corpusqa.devtasks:main"
+secrets = "corpusqa.devtasks:main"
+secrets-staged = "corpusqa.devtasks:main"
+serve-dev = "corpusqa.devtasks:main"
+questions-tune = "corpusqa.devtasks:main"
+eval-retrieval = "corpusqa.devtasks:main"
+eval-smoke = "corpusqa.devtasks:main"
+eval-tune = "corpusqa.devtasks:main"
+eval-heldout = "corpusqa.devtasks:main"
+eval-all = "corpusqa.devtasks:main"
+eval-judge-calibrate = "corpusqa.devtasks:main"
+eval-baseline = "corpusqa.devtasks:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "corpusqa"
+
+# ---------------------------------------------------------------- lint + format
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# T20: no print(); PTH: pathlib; ASYNC: no blocking calls in async code;
+# S: basic security lints (bandit rules).
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PTH", "T20", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S603", "S607"]                     # asserts and subprocess are fine in tests
+"{eval,scripts}/**" = ["T20", "S603", "S607"]             # CLIs print and run tools
+"src/corpusqa/devtasks.py" = ["T20", "S602", "S603", "S607"]  # the `uv run <key>` CLI runs commands.json
+
+# ---------------------------------------------------------------- types
+[tool.pyright]
+include = ["src"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+
+# ---------------------------------------------------------------- tests
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: calls the real Gemini API (run with: pytest -m live)",
+    "serve: starts ./serve as a subprocess (needs uv; skip with: pytest -m 'not serve')",
+]
+addopts = "-m 'not live'"
+
+# ---------------------------------------------------------------- import boundaries
+# The code map in AGENTS.md, as checks. Run: uv run lint-imports
+[tool.importlinter]
+root_package = "corpusqa"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: imports go down only"
+type = "layers"
+layers = [
+    "corpusqa.server",
+    "corpusqa.agent",
+    "corpusqa.answer | corpusqa.retrieval",
+    "corpusqa.store",
+]
+
+[[tool.importlinter.contracts]]
+name = "Ingest uses only the store"
+type = "forbidden"
+source_modules = ["corpusqa.ingest"]
+forbidden_modules = ["corpusqa.server", "corpusqa.agent", "corpusqa.answer", "corpusqa.retrieval"]
+
+[[tool.importlinter.contracts]]
+name = "SQL only in store"
+type = "forbidden"
+source_modules = [
+    "corpusqa.server", "corpusqa.agent", "corpusqa.answer", "corpusqa.retrieval",
+    "corpusqa.ingest", "corpusqa.llm", "corpusqa.obs",
+]
+forbidden_modules = ["sqlite3", "sqlite_vec"]
+# Others use the database only through store's classes (e.g. ingest -> store.sqlite ->
+# sqlite3); what is forbidden is importing sqlite3 directly outside store.
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Gemini SDK only in llm"
+type = "forbidden"
+source_modules = [
+    "corpusqa.server", "corpusqa.agent", "corpusqa.answer", "corpusqa.retrieval",
+    "corpusqa.store", "corpusqa.ingest", "corpusqa.obs",
+]
+forbidden_modules = ["google"]  # import-linter takes top-level external packages only (google.genai)
+# Only the wiring point may build the Gemini adapter (llm.client) and hand it down; every
+# other layer types against llm.interfaces. Any other path to the SDK, direct or through
+# llm.client, still breaks this contract.
+ignore_imports = ["corpusqa.server.__main__ -> corpusqa.llm.client"]
+
+[[tool.importlinter.contracts]]
+name = "Langfuse SDK and OpenTelemetry only in obs"
+type = "forbidden"
+source_modules = [
+    "corpusqa.server", "corpusqa.agent", "corpusqa.answer", "corpusqa.retrieval",
+    "corpusqa.store", "corpusqa.ingest", "corpusqa.llm", "corpusqa.config", "corpusqa.devtasks",
+]
+forbidden_modules = ["langfuse", "opentelemetry"]
+# Others reach the SDK only through obs's helpers (e.g. server -> obs -> langfuse);
+# what is forbidden is importing it directly.
+allow_indirect_imports = true
+
+[dependency-groups]
+dev = [
+    "import-linter>=2.15",
+    "pathspec>=1.1.1",
+    "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "ruff>=0.17.0",
+]

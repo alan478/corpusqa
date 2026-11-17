@@ -1,0 +1,29 @@
+{
+  "call_name": "Date formats",
+  "call_recap": "A call record that carries one value per date format.",
+  "d_plain": "2024-06-01",
+  "d_iso": "2024-06-02T10:30:00Z",
+  "d_space": "2024-06-03 10:30:00",
+  "d_offset": "2024-06-04T10:30:00+02:00",
+  "d_month": "2024-06",
+  "d_week": "2024-W23",
+  "d_quarter": "2024-Q2",
+  "d_epoch_s": "1717236000",
+  "d_epoch_frac": "1717236000.5",
+  "d_epoch_ms": "1717236000000",
+  "d_epoch_int": 1717236000,
+  "d_rfc": "Mon, 03 Jun 2024 09:00:00 +0000",
+  "d_long": "June 5, 2024",
+  "d_long_dmy": "6 June 2024",
+  "d_slash_mdy": "06/25/2024",
+  "d_slash_dmy": "25/06/2024",
+  "d_slash_ambiguous": "06/07/2024",
+  "d_far_future": "2999-01-01",
+  "d_too_old": "1850-01-01",
+  "d_not_a_date": "2024-13-45",
+  "title_field_name": "call_name",
+  "content_field_names": [
+    "call_recap"
+  ],
+  "dataset_doc_uuid": "fx-call-02"
+}

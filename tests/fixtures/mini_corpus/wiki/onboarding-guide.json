@@ -1,0 +1,11 @@
+{
+  "pg_name": "Onboarding guide",
+  "pg_text": "Welcome aboard.\\n\\nStep one: collect your laptop from Ingrid Falkner.\\nStep two: read the \\\"house rules\\\" page.\\n\\tTip: ask questions early.",
+  "pg_space": "people-ops",
+  "pg_revised": "2024-04-02T10:00:00+02:00",
+  "title_field_name": "pg_name",
+  "content_field_names": [
+    "pg_text"
+  ],
+  "dataset_doc_uuid": "fx-wiki-01"
+}

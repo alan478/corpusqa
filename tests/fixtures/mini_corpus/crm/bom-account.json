@@ -1,0 +1,10 @@
+﻿{
+  "acct_label": "Old label",
+  "acct_label": "Tidewater Looms account",
+  "acct_summary": "Tidewater Looms asked for a quote on forty looms.",
+  "acct_active": "Yes",
+  "acct_code": "ＡＣＭ-７",
+  "title_field_name": "acct_label",
+  "content_field_names": ["acct_summary"],
+  "dataset_doc_uuid": "  acct:77  "
+}

@@ -1,0 +1,32 @@
+{
+  "tkt_heading": "Printer jams on the third floor every Monday",
+  "tkt_story": "The large printer near the quiet room jams on Monday mornings.\nBrennagh Voss reported it twice.",
+  "tkt_followups": [
+    "Checked the paper tray; it was overfilled.",
+    "  ",
+    "Ordered a new roller from Halvorsen Supply."
+  ],
+  "tkt_phase": "Waiting_On_Vendor",
+  "tkt_urgency": 2,
+  "tkt_blocked": false,
+  "tkt_estimate_hours": 1.5,
+  "tkt_owner_note": null,
+  "tkt_tags": [
+    "hardware",
+    "floor-3"
+  ],
+  "tkt_logged_at": "2024-01-01",
+  "tkt_opened_on": "2024-01-05",
+  "tkt_touched_on": "2024-01-09",
+  "tkt_due_by": "2024-02-01",
+  "_gen_marker": "v2",
+  "tkt_source_file": "TKT-101-printer-jam.json",
+  "tkt_empty_text": "",
+  "tkt_empty_list": [],
+  "title_field_name": "tkt_heading",
+  "content_field_names": [
+    "tkt_story",
+    "tkt_followups"
+  ],
+  "dataset_doc_uuid": "fx-tkt-101"
+}

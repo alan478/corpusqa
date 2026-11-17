@@ -1,0 +1,7 @@
+# Role prefixes for the embedding model. gemini-embedding-2 has no task_type, so the task
+# is written into the text (format from ai.google.dev/gemini-api/docs/embeddings, read
+# 2026-10-16). {text} is replaced by the text to embed. Chunk text already starts with its
+# own header line (source, title, date), so documents use "title: none".
+version: 1
+document: title: none | text: {text}
+query: task: question answering | query: {text}

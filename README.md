@@ -1,0 +1,56 @@
+# CorpusQA
+
+A question-answering agent over a company's records. It reads documents from Slack, Gmail,
+Linear, Google Drive, HubSpot, Confluence, Fireflies, Jira and GitHub, and answers a question
+with the records it relied on, each one checked against the index.
+
+![How it works](docs/images/architecture.png)
+
+## What it does
+
+- **Ingest.** Discovers, parses and cleans every record, learns each field's kind and values,
+  chunks text at 512 tokens with field headers, and caches embeddings by content. Everything
+  goes into one SQLite file.
+- **Hybrid search.** BM25 keyword search (SQLite FTS5) and vector search, merged with rank
+  fusion. Recall@10 is 0.727, against 0.696 for vectors alone and 0.603 for keywords alone.
+- **Agent.** A ReAct loop on Gemini with 8 tools: hybrid search, field filters with exact
+  counts, value lists, key lookups and document reads. Stopping rules and context compaction
+  keep each question inside its step, tool and time budget.
+- **Citations.** Every cited id is checked against the index before it is returned.
+- **Serving.** FastAPI with `GET /health` and `POST /ask`, 4 questions at once under a deadline,
+  traced end to end in Langfuse.
+- **Evaluation.** A 79-question golden dataset split once into 30 tune and 49 held-out
+  questions, scored on citations and judged fact by fact by an LLM judge. A hook stops coding
+  agents from reading the held-out questions.
+
+## Results (final run, all 79 questions)
+
+| Metric | Result |
+|---|---|
+| Fully correct answers | 64 of 79 (81%) |
+| Facts right | 290 of 308 |
+| Citation precision / recall / F1 | 0.944 / 0.961 / 0.945 |
+| No-answer questions that cite nothing | 10 of 11 |
+| Errors and timeouts, 4 at a time | 0 |
+| Latency p50 / p95 | 36.6 s / 55.3 s |
+| Cost per question | $0.042 |
+
+## Run it
+
+You need [uv](https://docs.astral.sh/uv/), a `GEMINI_API_KEY` in a `.env` file in the repo
+root, and a folder of JSON records.
+
+```bash
+set -a; . ./.env; set +a
+CORPUS_DIR=/path/to/records PORT=8080 ./serve
+curl -s http://127.0.0.1:8080/ask -H 'Content-Type: application/json' \
+  -d '{"question": "Which open tickets have the highest priority?"}'
+```
+
+The records dataset used in development is not included in this repository.
+`uv run check` runs the tests and linters.
+
+## Read more
+
+[`SOLUTION.md`](SOLUTION.md) explains the architecture, the choices that mattered, the full
+evaluation and what is left to build.

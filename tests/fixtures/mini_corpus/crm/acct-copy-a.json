@@ -1,0 +1,11 @@
+{
+  "acct_label": "Pellworth Gardens account",
+  "acct_summary": "Pellworth Gardens renewed their seed subscription for two more seasons.",
+  "acct_stage": "Closed_Won",
+  "acct_value": "12,500",
+  "title_field_name": "acct_label",
+  "content_field_names": [
+    "acct_summary"
+  ],
+  "dataset_doc_uuid": "fx-crm-dup"
+}
