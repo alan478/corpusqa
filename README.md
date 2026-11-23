@@ -37,18 +37,39 @@ with the records it relied on, each one checked against the index.
 
 ## Run it
 
-You need [uv](https://docs.astral.sh/uv/), a `GEMINI_API_KEY` in a `.env` file in the repo
-root, and a folder of JSON records.
+You need [uv](https://docs.astral.sh/uv/) and a `GEMINI_API_KEY` in a `.env` file in the repo
+root. The example runs on the development corpus in `data/corpus/`; any folder of JSON records
+of the same format works.
 
 ```bash
 set -a; . ./.env; set +a
-CORPUS_DIR=/path/to/records PORT=8080 ./serve
+CORPUS_DIR="$PWD/data/corpus" PORT=8080 ./serve
 curl -s http://127.0.0.1:8080/ask -H 'Content-Type: application/json' \
   -d '{"question": "Which open tickets have the highest priority?"}'
 ```
 
-The records dataset used in development is not included in this repository.
-`uv run check` runs the tests and linters.
+[Data](#data) says where the corpus comes from. `uv run check` runs the tests and linters.
+
+## Data
+
+The development data describes Redwood Inference, a fictional company that sells LLM
+inference as a service.
+
+- **Corpus: [`data/corpus/`](data/corpus/).** 21,612 JSON documents from the nine sources
+  above. They came with the Codos take-home task this project was built for, and they are a
+  subset of [EnterpriseRAG-Bench](https://github.com/onyx-dot-app/EnterpriseRAG-Bench)
+  (Onyx, 2026; [paper](https://arxiv.org/abs/2605.05253)), a public benchmark of about 500,000
+  generated documents and 500 questions about the same company, with some dataset-generation
+  artifacts removed. [`data/uuid_index.json`](data/uuid_index.json) maps each document's
+  `dataset_doc_uuid` (the id `/ask` cites) to its file. The benchmark is under the MIT license,
+  copied in [`data/LICENSE`](data/LICENSE). The full benchmark can be downloaded from its
+  [GitHub releases](https://github.com/onyx-dot-app/EnterpriseRAG-Bench/releases/latest) or
+  from [Hugging Face](https://huggingface.co/datasets/onyx-dot-app/EnterpriseRAG-Bench).
+- **Golden dataset (not included).** The 79 development questions, each with a reference
+  answer and the ids of the documents the answer relies on. Codos wrote them for the take-home
+  task; they are not the benchmark's questions, and they are not published here.
+  [`eval/sets/`](eval/sets/) holds only their ids, split once into 30 tune and 49 held-out
+  questions. To run the eval, put the file at `data/questions.jsonl`; git ignores that path.
 
 ## Read more
 

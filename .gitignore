@@ -10,3 +10,6 @@ docs/runs/
 .env
 .env.*
 !.env.example
+
+# The golden dataset (79 questions with answers) is private: never commit it.
+data/questions.jsonl
